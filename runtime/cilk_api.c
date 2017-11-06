@@ -122,6 +122,11 @@ CILK_API_INT __cilkrts_set_param(const char* param, const char* value)
     return cilkg_set_param(param, value);
 }
 
+CILK_API_VOID __cilkrts_report_encorebench_stats()
+{
+  printf("cilk_stats_enabled 0\n");
+}
+
 #ifdef _WIN32
 CILK_API_INT __cilkrts_set_param_w(const wchar_t* param, const wchar_t* value)
 {
