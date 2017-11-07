@@ -103,7 +103,10 @@ static inline int grainsize(int req, count_t count)
     else
     {
         // Divide loop count by 8 times the worker count and round up.
-        const int Px8 = g->P * 8;
+        // #ifdef ARTHUR
+        // const int Px8 = g->P * 8;
+        const int Px8 = g->P_fake * 8;
+        // #endif
         count_t n = (count + Px8 - 1) / Px8;
 
         // 2K should be enough to amortize the cost of the cilk_for. Any

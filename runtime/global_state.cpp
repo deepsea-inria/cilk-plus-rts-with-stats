@@ -276,8 +276,12 @@ int set_param_imp(global_state_t* g, const CHAR_T* param, const CHAR_T* value)
         }
         // Allow a value of 0, which means "set to hardware thread count".
         int ret = store_int(&g->P, value, 0, max_cpu_count);
-        if (0 == g->P)
+        if (0 == g->P) {
             g->P = hardware_cpu_count;
+            // #ifdef ARTHUR
+            g->P_fake = g->P;
+            // #endif
+        }
         return ret;
     }
     else if (strmatch(param, s_max_user_workers))
@@ -406,6 +410,9 @@ global_state_t* cilkg_get_user_settable_values()
         g->under_ptool              = under_ptool;
         g->force_reduce             = 0;   // Default Off
         g->P                        = hardware_cpu_count;   // Defaults to hardware CPU count
+        // #ifdef ARTHUR
+        g->P_fake = g->P;
+        // #endif
         g->max_user_workers         = 0;   // 0 unless set by user
         g->fiber_pool_size          = 7;   // Arbitrary default
         
@@ -467,6 +474,14 @@ global_state_t* cilkg_get_user_settable_values()
             // Set the number of times a worker should fail to steal before
             // it looks to see whether it should suspend itself.
             store_int<unsigned>(&g->max_steal_failures, envstr, 1, INT_MAX);
+
+        // #ifdef ARTHUR
+        g->P_fake = g->P;
+        if (cilkos_getenv(envstr, sizeof(envstr), "CILK_FAKE_NWORKERS"))
+            // Set P_fake to environment variable, but limit to no less than 1
+            // and no more than 16 times the number of hardware threads.
+            store_int(&g->P_fake, envstr, 1, 16 * hardware_cpu_count);
+        // #endif
 
         // Compute the total number of workers to allocate.  Subtract one from
         // nworkers and user workers so that the first user worker isn't

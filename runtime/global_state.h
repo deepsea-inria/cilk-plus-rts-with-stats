@@ -269,6 +269,9 @@ struct global_state_t { /* COMMON_PORTABLE */
     char cache_buf_2[64];
 
     int P;         ///< USER SETTING: number of system workers + 1 (fixed)
+    // #ifdef ARTHUR
+    int P_fake; // used for controlling cilk for loops independently of P
+    // #endif
     int Q;         ///< Number of user threads currently bound to workers 
 };
 
