@@ -153,6 +153,7 @@ void __cilkrts_accum_stats(statistics *to, statistics *from)
 //#ifdef ARTHUR
 void __cilkrts_nondestructive_accum_stats(statistics *to, statistics *from, int multiplier)
 {
+      unsigned long long now = __cilkrts_getticks();
     int i;
     for (i = 0; i < INTERVAL_N; ++i) {
         to->accum[i] += from->accum[i] * multiplier;
