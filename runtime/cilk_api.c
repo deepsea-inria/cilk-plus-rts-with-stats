@@ -142,8 +142,7 @@ CILK_API_VOID __cilkg_dump_encore_stats_to_stderr() {
     global_os_mutex_lock();
     if (cilkg_is_published()) {
         global_state_t *g = cilkg_get_global_state();
-	__cilkrts_dump_stats_to_stderr(g);
-	//	__cilkrts_dump_encore_stats_to_stderr(g);
+        __cilkrts_dump_encore_stats_to_stderr(g);
     }
     else {
 	__cilkrts_bug("Attempting to report Cilk stats before the runtime has started\n");

@@ -112,7 +112,7 @@ void __cilkrts_init_stats(statistics *s)
 
 void __cilkrts_dump_encore_stats(statistics *s)
 {
-    printf("CILK ENCORE STATISTICS:\n\n");
+    printf("CILK ENCORE STATISTICS FROM SNAPSHOT UNTIL NOW:\n\n");
     printf("ticks_working %lld\n", s->accum[INTERVAL_WORKING]);
     printf("ticks_runtime %lld\n", s->accum[INTERVAL_IN_RUNTIME]);
     printf("ticks_total %lld\n", s->accum[INTERVAL_IN_SCHEDULER]);
@@ -153,16 +153,24 @@ void __cilkrts_accum_stats(statistics *to, statistics *from)
 //#ifdef ARTHUR
 void __cilkrts_nondestructive_accum_stats(statistics *to, statistics *from, int multiplier)
 {
-      unsigned long long now = __cilkrts_getticks();
+    unsigned long long now = __cilkrts_getticks();
     int i;
     for (i = 0; i < INTERVAL_N; ++i) {
         to->accum[i] += from->accum[i] * multiplier;
         to->count[i] += from->count[i] * multiplier;
-        // If an interval is not closed, we count its duration until now
+        // special case for INTERVAL_IN_SCHEDULER: we should not zero it out
+        if (i == INTERVAL_IN_SCHEDULER && to->count[i] == 0 && from->count[i] != 0) {
+          to->count[i] = 1;
+        }
+        /* // If an interval is not closed, we count its duration until now
+        // We don't do this because else the range would be counted twice.
         if (from->start[i] != INVALID_START) {
            to->accum[i] += (now - from->start[i]) * multiplier;
-        }
+        } */
     }
+    
+    s->accum[INTERVAL_IN_SCHEDULER]
+
     if (from->stack_hwm > to->stack_hwm)
         to->stack_hwm = from->stack_hwm;
 }
@@ -200,9 +208,8 @@ void __cilkrts_stop_interval(__cilkrts_worker *w, enum interval i)
 void dump_stats_to_file(FILE *stat_file, statistics *s)
 {
     // Only print out stats for worker if they are nonzero.
-   // print stats even if INTERVAL_IN_SCHEDULER has zero events
-    if (true) {
-    // #ifndef ARTHUR : if (s->accum[INTERVAL_IN_SCHEDULER] > 0) {
+    // #ifdef ARTHUR was: // if (s->accum[INTERVAL_IN_SCHEDULER] > 0) {
+    if (s->count[INTERVAL_IN_SCHEDULER] > 0) {
         int i;
         fprintf(stat_file, "\nCILK PLUS RUNTIME SYSTEM STATISTICS:\n\n");
         fprintf(stat_file,
