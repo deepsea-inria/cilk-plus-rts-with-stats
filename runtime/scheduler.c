@@ -175,6 +175,7 @@ void __cilkrts_dump_stats_to_stderr(global_state_t *g)
         // Print out statistics for each worker.  We collected them,
         // so why not print them out?
         fprintf(stderr, "Stats for worker %d\n", i);
+        printf("WORKER type %d===\n", g->workers[i]->l->type);
         dump_stats_to_file(stderr, g->workers[i]->l->stats);
         __cilkrts_accum_stats(&g->stats, g->workers[i]->l->stats);
     }
@@ -216,9 +217,6 @@ void __cilkrts_dump_encore_stats_to_stderr(global_state_t *g)
     __cilkrts_reset_stats(&g->stats);  // probably not necessary
     int i;
     for (i = 0; i < g->total_workers; ++i) {
-       if (WORKER_USER == g->workers[i]->l->type) {
-         printf("=== PROBLEMATIC USER WORKER (%d) ===\n", i);
-       }
        __cilkrts_accum_stats(&g->stats, g->workers[i]->l->stats);
     }
     __cilkrts_dump_encore_stats(&g->stats); 

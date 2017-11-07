@@ -123,13 +123,32 @@ CILK_API_INT __cilkrts_set_param(const char* param, const char* value)
 }
 
 CILK_API_VOID __cilkg_reset_all_stats() {
-    __cilkrts_worker* tmp = __cilkrts_get_tls_worker();
-    __cilkrts_reset_all_stats(tmp->g);
+    // While the stats aren't protected by the global OS mutex, the table
+    // of workers is, so take out the global OS mutex while we're doing this
+    global_os_mutex_lock();
+    if (cilkg_is_published()) {
+        global_state_t *g = cilkg_get_global_state();
+	__cilkrts_reset_all_stats(g);
+    }
+    else {
+	__cilkrts_bug("Attempting to report Cilk stats before the runtime has started\n");
+    }    
+    global_os_mutex_unlock();
 }
 
 CILK_API_VOID __cilkg_dump_encore_stats_to_stderr() {
-  __cilkrts_worker* tmp = __cilkrts_get_tls_worker();
-  __cilkrts_dump_encore_stats_to_stderr(tmp->g);
+    // While the stats aren't protected by the global OS mutex, the table
+    // of workers is, so take out the global OS mutex while we're doing this
+    global_os_mutex_lock();
+    if (cilkg_is_published()) {
+        global_state_t *g = cilkg_get_global_state();
+	__cilkrts_dump_stats_to_stderr(g);
+	//	__cilkrts_dump_encore_stats_to_stderr(g);
+    }
+    else {
+	__cilkrts_bug("Attempting to report Cilk stats before the runtime has started\n");
+    }    
+    global_os_mutex_unlock();
 }
 
 #ifdef _WIN32
