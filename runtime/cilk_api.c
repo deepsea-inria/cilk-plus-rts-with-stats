@@ -122,9 +122,14 @@ CILK_API_INT __cilkrts_set_param(const char* param, const char* value)
     return cilkg_set_param(param, value);
 }
 
-CILK_API_VOID __cilkrts_report_encorebench_stats()
-{
-  printf("cilk_stats_enabled 0\n");
+CILK_API_VOID __cilkg_reset_all_stats() {
+    __cilkrts_worker* tmp = __cilkrts_get_tls_worker();
+    __cilkrts_reset_all_stats(tmp->g);
+}
+
+CILK_API_VOID __cilkg_dump_encore_stats_to_stderr() {
+  __cilkrts_worker* tmp = __cilkrts_get_tls_worker();
+  __cilkrts_dump_encore_stats_to_stderr(tmp->g);
 }
 
 #ifdef _WIN32

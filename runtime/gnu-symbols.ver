@@ -76,6 +76,8 @@ CILKABI0
     __cilkrts_rethrow;
     __cilkrts_return_exception;
     __cilkrts_set_param;
+    __cilkg_reset_all_stats;
+    __cilkg_dump_encore_stats_to_stderr;
     __cilkrts_report_encorebench_stats;
     __cilkrts_sync;
     __cilkrts_synched;

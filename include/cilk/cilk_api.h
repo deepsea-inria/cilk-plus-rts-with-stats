@@ -172,7 +172,8 @@ enum __cilkrts_set_param_status {
  */
 CILK_API(int) __cilkrts_set_param(const char *param, const char *value);
 
-CILK_API(void) __cilkrts_report_encorebench_stats();
+CILK_API(void) __cilkg_reset_all_stats();
+CILK_API(void) __cilkg_dump_encore_stats_to_stderr();
 
 #ifdef _WIN32
 /**

@@ -196,8 +196,9 @@ void __cilkrts_dump_stats_to_stderr(global_state_t *g)
     fputc('\n', stderr);
 }
 
-#ifdef ARTHUR
+//#ifdef ARTHUR
 void __cilkrts_reset_all_stats(global_state_t *g) {
+    assert(g != NULL);
     int i;
     for (i = 0; i < g->total_workers; ++i) {
         __cilkrts_reset_stats(g->workers[i]->l->stats);
@@ -206,6 +207,7 @@ void __cilkrts_reset_all_stats(global_state_t *g) {
 
 void __cilkrts_dump_encore_stats_to_stderr(global_state_t *g)
 {
+        assert(g != NULL);
   // Note: this function should not be called
   // in a program where __cilkrts_dump_stats_to_stderr is called,
   // because the accum_stats function reset the fields.
@@ -221,7 +223,8 @@ void __cilkrts_dump_encore_stats_to_stderr(global_state_t *g)
     }
     __cilkrts_dump_encore_stats(&g->stats); 
 }
-#endif
+
+//#endif
 
 
 static void validate_worker(__cilkrts_worker *w)

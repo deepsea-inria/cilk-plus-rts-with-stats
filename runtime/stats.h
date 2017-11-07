@@ -59,7 +59,7 @@
 #ifndef INCLUDED_STATS_DOT_H
 #define INCLUDED_STATS_DOT_H
 
-/* #define CILK_PROFILE 1 */
+#define CILK_PROFILE 1 
 // @note  The CILK_PROFILE flag and intervals is known to be broken
 //        in at least programs with Windows exceptions. 
 //        Enable this flag at your own peril. :)
@@ -184,10 +184,10 @@ typedef struct statistics
  */
 COMMON_PORTABLE void __cilkrts_init_stats(statistics *s);
 
-#ifdef ARTHUR
+//#ifdef ARTHUR
 COMMON_PORTABLE void __cilkrts_reset_stats(statistics *s);
 COMMON_PORTABLE void __cilkrts_dump_encore_stats(statistics *s);
-#endif 
+//#endif 
 
 /**
  * @brief Sums statistics from worker to the global struct

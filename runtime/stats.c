@@ -110,7 +110,7 @@ void __cilkrts_init_stats(statistics *s)
     s->stack_hwm = 0;
 }
 
-#ifdef ARTHUR
+//#ifdef ARTHUR
 void __cilkrts_reset_stats(statistics *s)
 {
     int i;
@@ -134,7 +134,7 @@ void __cilkrts_dump_encore_stats(statistics *s)
     printf("nb_steal %lld\n", s->count[INTERVAL_STEAL_SUCCESS]);
     printf("nb_fiber_alloc %lld\n", s->count[INTERVAL_FIBER_ALLOCATE]);
 }
-#endif
+//#endif
 
 
 #ifdef CILK_PROFILE
@@ -142,22 +142,22 @@ void __cilkrts_accum_stats(statistics *to, statistics *from)
 {
     int i;
 
-    #ifdef ARTHUR
+    //#ifdef ARTHUR
     unsigned long long now = __cilkrts_getticks();
-    #endif
+    //#endif
 
     for (i = 0; i < INTERVAL_N; ++i) {
         to->accum[i] += from->accum[i];
         to->count[i] += from->count[i];
         from->accum[i] = 0;
         from->count[i] = 0;
-        #ifdef ARTHUR
+        //#ifdef ARTHUR
         // If an interval is not closed, we count its duration until now
         if (from->start[i] != INVALID_START) {
            to->accum[i] += now - from->start[i];
            from->start[i] = now;
         }
-        #endif
+        //#endif
     }
 
     if (from->stack_hwm > to->stack_hwm)
