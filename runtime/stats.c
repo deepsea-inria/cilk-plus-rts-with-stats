@@ -122,6 +122,8 @@ void __cilkrts_reset_stats(statistics *s)
         s->count[i] = 0;
         s->accum[i] = 0;
     }
+    // need to force this so that stats get displayed
+    s->start[INTERVAL_IN_SCHEDULER] = 1;
     // currently do not reset: s->stack_hwm
 }
 
