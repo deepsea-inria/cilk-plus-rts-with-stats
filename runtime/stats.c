@@ -150,7 +150,7 @@ void __cilkrts_accum_stats(statistics *to, statistics *from)
     from->stack_hwm = 0;
 }
 
-#ifdef ARTHUR
+//#ifdef ARTHUR
 void __cilkrts_nondestructive_accum_stats(statistics *to, statistics *from, int multiplier)
 {
     int i;
@@ -165,7 +165,7 @@ void __cilkrts_nondestructive_accum_stats(statistics *to, statistics *from, int 
     if (from->stack_hwm > to->stack_hwm)
         to->stack_hwm = from->stack_hwm;
 }
-#endif
+//#endif
 
 void __cilkrts_note_interval(__cilkrts_worker *w, enum interval i)
 {
@@ -199,12 +199,9 @@ void __cilkrts_stop_interval(__cilkrts_worker *w, enum interval i)
 void dump_stats_to_file(FILE *stat_file, statistics *s)
 {
     // Only print out stats for worker if they are nonzero.
-    #ifdef ARTHUR
-      // print stats even if INTERVAL_IN_SCHEDULER has zero events
+   // print stats even if INTERVAL_IN_SCHEDULER has zero events
     if (true) {
-    #else
-    if (s->accum[INTERVAL_IN_SCHEDULER] > 0) {
-    #endif
+    // #ifndef ARTHUR : if (s->accum[INTERVAL_IN_SCHEDULER] > 0) {
         int i;
         fprintf(stat_file, "\nCILK PLUS RUNTIME SYSTEM STATISTICS:\n\n");
         fprintf(stat_file,
