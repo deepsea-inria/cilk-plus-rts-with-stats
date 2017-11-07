@@ -110,23 +110,6 @@ void __cilkrts_init_stats(statistics *s)
     s->stack_hwm = 0;
 }
 
-//#ifdef ARTHUR
-void __cilkrts_reset_stats(statistics *s)
-{
-    int i;
-    unsigned long long now = __cilkrts_getticks();
-    for (i = 0; i < INTERVAL_N; ++i) {
-        if (s->start[i] != INVALID_START) {
-          s->start[i] = now;
-        }
-        s->count[i] = 0;
-        s->accum[i] = 0;
-    }
-    // need to force this so that stats get displayed
-    s->start[INTERVAL_IN_SCHEDULER] = 1;
-    // currently do not reset: s->stack_hwm
-}
-
 void __cilkrts_dump_encore_stats(statistics *s)
 {
     printf("CILK ENCORE STATISTICS:\n\n");
@@ -138,8 +121,8 @@ void __cilkrts_dump_encore_stats(statistics *s)
 }
 //#endif
 
-
 #ifdef CILK_PROFILE
+
 void __cilkrts_accum_stats(statistics *to, statistics *from)
 {
     int i;
@@ -166,6 +149,23 @@ void __cilkrts_accum_stats(statistics *to, statistics *from)
         to->stack_hwm = from->stack_hwm;
     from->stack_hwm = 0;
 }
+
+#ifdef ARTHUR
+void __cilkrts_nondestructive_accum_stats(statistics *to, statistics *from, int multiplier)
+{
+    int i;
+    for (i = 0; i < INTERVAL_N; ++i) {
+        to->accum[i] += from->accum[i] * multiplier;
+        to->count[i] += from->count[i] * multiplier;
+        // If an interval is not closed, we count its duration until now
+        if (from->start[i] != INVALID_START) {
+           to->accum[i] += (now - from->start[i]) * multiplier;
+        }
+    }
+    if (from->stack_hwm > to->stack_hwm)
+        to->stack_hwm = from->stack_hwm;
+}
+#endif
 
 void __cilkrts_note_interval(__cilkrts_worker *w, enum interval i)
 {
@@ -199,7 +199,12 @@ void __cilkrts_stop_interval(__cilkrts_worker *w, enum interval i)
 void dump_stats_to_file(FILE *stat_file, statistics *s)
 {
     // Only print out stats for worker if they are nonzero.
+    #ifdef ARTHUR
+      // print stats even if INTERVAL_IN_SCHEDULER has zero events
+    if (true) {
+    #else
     if (s->accum[INTERVAL_IN_SCHEDULER] > 0) {
+    #endif
         int i;
         fprintf(stat_file, "\nCILK PLUS RUNTIME SYSTEM STATISTICS:\n\n");
         fprintf(stat_file,

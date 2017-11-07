@@ -566,6 +566,9 @@ global_state_t* cilkg_init_global_state()
     g->addr_size = sizeof(void *);
 
     __cilkrts_init_stats(&g->stats);
+    #ifdef ARTHUR
+    __cilkrts_init_stats(&g->stats_snapshot);
+    #endif
 
     __cilkrts_frame_malloc_global_init(g);
 

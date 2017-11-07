@@ -182,6 +182,14 @@ void __cilkrts_dump_stats_to_stderr(global_state_t *g)
 
     // Also print out aggregate statistics.
     dump_stats_to_file(stderr, &g->stats);
+
+//#ifdef ARTHUR
+     fprintf(stderr, "======Global stats since last snapshot========\n");
+    __cilkrts_nondestructive_accum_stats(&g->stats, &g->stats_snapshot, -1);
+    dump_stats_to_file(stderr, &g->stats);
+//#endif
+
+
 #endif
     fprintf(stderr,
             "CILK PLUS Thread Info: P=%d, Q=%d\n",
@@ -198,27 +206,28 @@ void __cilkrts_dump_stats_to_stderr(global_state_t *g)
 }
 
 //#ifdef ARTHUR
-void __cilkrts_reset_all_stats(global_state_t *g) {
+void __cilkrts_take_snapshot_for_stats(global_state_t *g) {
+    // takes a snapshot of the stats in g->stats_snapshot for later substraction
     assert(g != NULL);
+    __cilkrts_init_stats(&g->stats_snapshot); 
     int i;
     for (i = 0; i < g->total_workers; ++i) {
-        __cilkrts_reset_stats(g->workers[i]->l->stats);
+        __cilkrts_nondestructive_accum_stats(&g->stats_snapshot, g->workers[i]->l->stats, 1);
     }
 }
 
 void __cilkrts_dump_encore_stats_to_stderr(global_state_t *g)
 {
-        assert(g != NULL);
-  // Note: this function should not be called
-  // in a program where __cilkrts_dump_stats_to_stderr is called,
-  // because the accum_stats function reset the fields.
-  // (Only __cilkrts_dump_stats_to_stderr seems to 
-  // access g->stats, nevertheless we reset it for safety.)
-    __cilkrts_reset_stats(&g->stats);  // probably not necessary
+    assert(g != NULL);
+    // compute the sum of current stats
+    __cilkrts_init_stats(&g->stats);
     int i;
     for (i = 0; i < g->total_workers; ++i) {
-       __cilkrts_accum_stats(&g->stats, g->workers[i]->l->stats);
+       __cilkrts_nondestructive_accum_stats(&g->stats, g->workers[i]->l->stats, 1);
     }
+    // substract the stats before the snapshot 
+    __cilkrts_nondestructive_accum_stats(&g->stats, &g->stats_snapshot, -1);
+    // dump the result
     __cilkrts_dump_encore_stats(&g->stats); 
 }
 

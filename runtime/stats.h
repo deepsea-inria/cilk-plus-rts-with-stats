@@ -200,6 +200,13 @@ COMMON_PORTABLE void __cilkrts_dump_encore_stats(statistics *s);
 COMMON_PORTABLE
 void __cilkrts_accum_stats(statistics *to, statistics *from);
 
+#ifdef ARTHUR
+// same as above, but does not modify "from" stats; 
+// multiplier should be +1 for accumulate, -1 for substraction
+COMMON_PORTABLE
+void __cilkrts_nondestructive_accum_stats(statistics *to, statistics *from, int multiplier);
+#endif
+
 /**
  * @brief Mark the start of an interval by saving the current tick count.
  *

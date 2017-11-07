@@ -122,13 +122,13 @@ CILK_API_INT __cilkrts_set_param(const char* param, const char* value)
     return cilkg_set_param(param, value);
 }
 
-CILK_API_VOID __cilkg_reset_all_stats() {
+CILK_API_VOID __cilkg_take_snapshot_for_stats() {
     // While the stats aren't protected by the global OS mutex, the table
     // of workers is, so take out the global OS mutex while we're doing this
     global_os_mutex_lock();
     if (cilkg_is_published()) {
         global_state_t *g = cilkg_get_global_state();
-	__cilkrts_reset_all_stats(g);
+	__cilkrts_take_snapshot_for_stats(g);
     }
     else {
 	__cilkrts_bug("Attempting to report Cilk stats before the runtime has started\n");

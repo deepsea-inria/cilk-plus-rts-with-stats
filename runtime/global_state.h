@@ -197,6 +197,10 @@ struct global_state_t { /* COMMON_PORTABLE */
 
     statistics stats;    ///< Statistics on use of runtime
 
+    #ifdef ARTHUR
+    statistics stats_snapshot;    ///< Statistics on use of runtime until last snapshot
+    #endif
+
     /**
      * @brief USER SETTING: Maximum number of stacks the runtime will
      * allocate (apart from those created by the OS when worker
