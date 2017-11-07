@@ -110,6 +110,33 @@ void __cilkrts_init_stats(statistics *s)
     s->stack_hwm = 0;
 }
 
+#ifdef ARTHUR
+void __cilkrts_reset_stats(statistics *s)
+{
+    int i;
+    unsigned long long now = __cilkrts_getticks();
+    for (i = 0; i < INTERVAL_N; ++i) {
+        if (s->start[i] != INVALID_START) {
+          s->start[i] = now;
+        }
+        s->count[i] = 0;
+        s->accum[i] = 0;
+    }
+    // currently do not reset: s->stack_hwm
+}
+
+void __cilkrts_dump_encore_stats(statistics *s)
+{
+    printf("CILK ENCORE STATISTICS:\n\n");
+    printf("time_working %lld\n", s->accum[INTERVAL_WORKING]);
+    printf("time_runtime %lld\n", s->accum[INTERVAL_IN_RUNTIME]);
+    printf("time_total %lld\n", s->accum[INTERVAL_IN_SCHEDULER]);
+    printf("nb_steals %lld\n", s->count[INTERVAL_STEAL_SUCCESS]);
+    printf("nb_fiber_alloc %lld\n", s->count[INTERVAL_FIBER_ALLOCATE]);
+}
+#endif
+
+
 #ifdef CILK_PROFILE
 void __cilkrts_accum_stats(statistics *to, statistics *from)
 {

@@ -196,6 +196,31 @@ void __cilkrts_dump_stats_to_stderr(global_state_t *g)
     fputc('\n', stderr);
 }
 
+#ifdef ARTHUR
+void __cilkrts_reset_all_stats(global_state_t *g) {
+    int i;
+    for (i = 0; i < g->total_workers; ++i) {
+        __cilkrts_reset_stats(g->workers[i]->l->stats);
+    }
+}
+
+void __cilkrts_dump_encore_stats_to_stderr(global_state_t *g)
+{
+  // Note: this function should not be called
+  // in a program where __cilkrts_dump_stats_to_stderr is called,
+  // because the accum_stats function reset the fields.
+  // (Pnly __cilkrts_dump_stats_to_stderr seems to 
+  // access g->stats, nevertheless we reset it for safety.)
+    __cilkrts_reset_stats(&g->stats); 
+    int i;
+    for (i = 0; i < g->total_workers; ++i) {
+        __cilkrts_accum_stats(&g->stats, g->workers[i]->l->stats);
+    }
+    __cilkrts_dump_encore_stats(&g->stats); 
+}
+#endif
+
+
 static void validate_worker(__cilkrts_worker *w)
 {
     /* check the magic numbers, for debugging purposes */
@@ -3044,6 +3069,7 @@ void __cilkrts_deinit_internal(global_state_t *g)
 
     cilkg_deinit_global_state();
 }
+
 
 /*
  * Wake the runtime by notifying the system workers that they can steal.  The

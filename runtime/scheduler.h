@@ -412,6 +412,14 @@ void scheduler_fiber_proc_for_user_worker(cilk_fiber *fiber);
 COMMON_PORTABLE
 void __cilkrts_dump_stats_to_stderr(global_state_t *g);
 
+#ifdef ARTHUR
+// to be call at the beginning of the computation of interest
+void __cilkrts_reset_all_stats(global_state_t *g) {
+// to be call at the end of the computation of interest
+void __cilkrts_dump_encore_stats_to_stderr(global_state_t *g)
+#endif
+
+
 #ifdef CILK_RECORD_REPLAY
 COMMON_PORTABLE
 char * walk_pedigree_nodes(char *p, const __cilkrts_pedigree *pnode);

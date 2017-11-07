@@ -184,6 +184,11 @@ typedef struct statistics
  */
 COMMON_PORTABLE void __cilkrts_init_stats(statistics *s);
 
+#ifdef ARTHUR
+COMMON_PORTABLE void __cilkrts_reset_stats(statistics *s);
+COMMON_PORTABLE void __cilkrts_dump_encore_stats(statistics *s);
+#endif 
+
 /**
  * @brief Sums statistics from worker to the global struct
  *
