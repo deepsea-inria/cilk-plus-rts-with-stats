@@ -209,12 +209,15 @@ void __cilkrts_dump_encore_stats_to_stderr(global_state_t *g)
   // Note: this function should not be called
   // in a program where __cilkrts_dump_stats_to_stderr is called,
   // because the accum_stats function reset the fields.
-  // (Pnly __cilkrts_dump_stats_to_stderr seems to 
+  // (Only __cilkrts_dump_stats_to_stderr seems to 
   // access g->stats, nevertheless we reset it for safety.)
-    __cilkrts_reset_stats(&g->stats); 
+    __cilkrts_reset_stats(&g->stats);  // probably not necessary
     int i;
     for (i = 0; i < g->total_workers; ++i) {
-        __cilkrts_accum_stats(&g->stats, g->workers[i]->l->stats);
+       if (WORKER_USER == g->workers[i]->l->type) {
+         printf("=== PROBLEMATIC USER WORKER (%d) ===\n", i);
+       }
+       __cilkrts_accum_stats(&g->stats, g->workers[i]->l->stats);
     }
     __cilkrts_dump_encore_stats(&g->stats); 
 }

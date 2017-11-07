@@ -128,10 +128,10 @@ void __cilkrts_reset_stats(statistics *s)
 void __cilkrts_dump_encore_stats(statistics *s)
 {
     printf("CILK ENCORE STATISTICS:\n\n");
-    printf("time_working %lld\n", s->accum[INTERVAL_WORKING]);
-    printf("time_runtime %lld\n", s->accum[INTERVAL_IN_RUNTIME]);
-    printf("time_total %lld\n", s->accum[INTERVAL_IN_SCHEDULER]);
-    printf("nb_steals %lld\n", s->count[INTERVAL_STEAL_SUCCESS]);
+    printf("ticks_working %lld\n", s->accum[INTERVAL_WORKING]);
+    printf("ticks_runtime %lld\n", s->accum[INTERVAL_IN_RUNTIME]);
+    printf("ticks_total %lld\n", s->accum[INTERVAL_IN_SCHEDULER]);
+    printf("nb_steal %lld\n", s->count[INTERVAL_STEAL_SUCCESS]);
     printf("nb_fiber_alloc %lld\n", s->count[INTERVAL_FIBER_ALLOCATE]);
 }
 #endif
@@ -142,11 +142,22 @@ void __cilkrts_accum_stats(statistics *to, statistics *from)
 {
     int i;
 
+    #ifdef ARTHUR
+    unsigned long long now = __cilkrts_getticks();
+    #endif
+
     for (i = 0; i < INTERVAL_N; ++i) {
         to->accum[i] += from->accum[i];
         to->count[i] += from->count[i];
         from->accum[i] = 0;
         from->count[i] = 0;
+        #ifdef ARTHUR
+        // If an interval is not closed, we count its duration until now
+        if (from->start[i] != INVALID_START) {
+           to->accum[i] += now - from->start[i];
+           from->start[i] = now;
+        }
+        #endif
     }
 
     if (from->stack_hwm > to->stack_hwm)
