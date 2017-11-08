@@ -1,10 +1,10 @@
 #!/bin/sh
 
-mkdir -p ../cilk-plus-rts
+mkdir -p `pwd ../cilk-plus-rts`
 libtoolize
 aclocal
 automake --add-missing
 autoconf
-./configure --prefix=../cilk-plus-rts/
+./configure --prefix=`pwd ../cilk-plus-rts`
 make -j
 make install

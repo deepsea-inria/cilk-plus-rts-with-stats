@@ -244,7 +244,6 @@ void __cilkrts_dump_encore_stats_to_stderr(global_state_t *g)
     // compute the interval in scheduler in a special way
     unsigned long long start = g->stats_snapshot.start[INTERVAL_IN_SCHEDULER];
     unsigned long long now = __cilkrts_getticks();
-    total.count[INTERVAL_IN_SCHEDULER] = now - start;
     total.accum[INTERVAL_IN_SCHEDULER] = now - start;
     // print encore specific stats
     __cilkrts_dump_encore_stats(&total); 

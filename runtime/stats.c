@@ -168,8 +168,6 @@ void __cilkrts_nondestructive_accum_stats(statistics *to, statistics *from, int 
            to->accum[i] += (now - from->start[i]) * multiplier;
         } */
     }
-    
-    s->accum[INTERVAL_IN_SCHEDULER]
 
     if (from->stack_hwm > to->stack_hwm)
         to->stack_hwm = from->stack_hwm;
