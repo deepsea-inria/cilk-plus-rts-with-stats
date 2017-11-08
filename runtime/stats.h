@@ -110,6 +110,7 @@ __CILKRTS_BEGIN_EXTERN_C
 enum interval
 {
     INTERVAL_IN_SCHEDULER,                  ///< Time threads spend "bound" to Cilk
+    INTERVAL_SEARCHING,                     ///< Time spent searching for work // ARTHUR
     INTERVAL_WORKING,                       ///< Time spent working
     INTERVAL_IN_RUNTIME,                    ///< Time spent executing runtime code
     INTERVAL_SCHED_LOOP,                    ///< Time spent in scheduling loop

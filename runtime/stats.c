@@ -60,6 +60,7 @@
 /* MSVC does not support designated initializers, grrrr... */
 static const char *names[] = {
     /*[INTERVAL_IN_SCHEDULER]*/                 "in scheduler",
+    /*[INTERVAL_SEARCHING]*/                    "  of which: searching", // ARTHUR
     /*[INTERVAL_WORKING]*/                      "  of which: working",
     /*[INTERVAL_IN_RUNTIME]*/                   "  of which: in runtime",
     /*[INTERVAL_IN_SCHED_LOOP]*/                "     of which: in sched loop",
@@ -112,12 +113,20 @@ void __cilkrts_init_stats(statistics *s)
 
 void __cilkrts_dump_encore_stats(statistics *s)
 {
-    printf("CILK ENCORE STATISTICS FROM SNAPSHOT UNTIL NOW:\n\n");
+    // DOCUMENTATION:
+    // searching <= working 
+    // working + runtime = total
+    // total = exectime * nbcores * 2.4GHz
+    // utilization = 1 - (searching / total)
+    // printf("CILK ENCORE STATISTICS FROM SNAPSHOT UNTIL NOW:\n\n");
+    double utilization = 1.0 - ((double) s->accum[INTERVAL_SEARCHING]) / ((double) s->accum[INTERVAL_IN_SCHEDULER]);
+    printf("utilization %.5lf\n", utilization);
+    printf("nb_steals %lld\n", s->count[INTERVAL_STEAL_SUCCESS]);
+    printf("nb_threads_alloc %lld\n", s->count[INTERVAL_FIBER_ALLOCATE]);
+    printf("ticks_total %lld\n", s->accum[INTERVAL_IN_SCHEDULER]);
     printf("ticks_working %lld\n", s->accum[INTERVAL_WORKING]);
     printf("ticks_runtime %lld\n", s->accum[INTERVAL_IN_RUNTIME]);
-    printf("ticks_total %lld\n", s->accum[INTERVAL_IN_SCHEDULER]);
-    printf("nb_steal %lld\n", s->count[INTERVAL_STEAL_SUCCESS]);
-    printf("nb_fiber_alloc %lld\n", s->count[INTERVAL_FIBER_ALLOCATE]);
+    printf("ticks_searching %lld\n", s->accum[INTERVAL_SEARCHING]);
 }
 //#endif
 

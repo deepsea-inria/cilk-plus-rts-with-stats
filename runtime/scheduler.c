@@ -206,15 +206,18 @@ void __cilkrts_take_snapshot_for_stats(global_state_t *g) {
     for (i = 0; i < g->total_workers; ++i) {
         __cilkrts_nondestructive_accum_stats(&g->stats_snapshot, g->workers[i]->l->stats, 1);
     }
-    // save the time of the snapshot in a special way
-    unsigned long long now = __cilkrts_getticks();
-    g->stats_snapshot.start[INTERVAL_IN_SCHEDULER] = now;
+    /* DEPRECATED
+      // save the time of the snapshot in a special way
+      unsigned long long now = __cilkrts_getticks();
+      g->stats_snapshot.start[INTERVAL_IN_SCHEDULER] = now;
+    */
 }
 
 void __cilkrts_dump_encore_stats_to_stderr(global_state_t *g)
 {
-    int show_detailed_cilk_stats = 1; // boolean flag
-    int show_cilk_stats = 1; // boolean flag
+    int show_worker_cilk_stats = 0; // boolean flag
+    int show_detailed_cilk_stats = 0; // boolean flag
+    int show_cilk_stats = 0; // boolean flag
 
     statistics total;
     __cilkrts_init_stats(&total); 
@@ -222,8 +225,8 @@ void __cilkrts_dump_encore_stats_to_stderr(global_state_t *g)
     assert(g != NULL);
     int i;
     for (i = 0; i < g->total_workers; ++i) {
-        if (show_detailed_cilk_stats) {
-          fprintf(stderr, " ======Stats for worker %d (of type %d) ======\n", i, g->workers[i]->l->type);
+        if (show_worker_cilk_stats) {
+          fprintf(stderr, "\n======Stats for worker %d (of type %d) ======\n", i, g->workers[i]->l->type);
           dump_stats_to_file(stderr, g->workers[i]->l->stats);
         }
         // accumulate contribution of work to total
@@ -231,19 +234,25 @@ void __cilkrts_dump_encore_stats_to_stderr(global_state_t *g)
     }
     // print out aggregate statistics
     if (show_detailed_cilk_stats) {
-      fprintf(stderr, "======Global stats since begin of program========\n");
+      fprintf(stderr, "\n======Global stats since beginning of program========\n");
       dump_stats_to_file(stderr, &total);
+    }
+    if (show_detailed_cilk_stats) {
+      fprintf(stderr, "\n======Global stats between beginning of program and snapshot========\n");
+      dump_stats_to_file(stderr, &g->stats_snapshot);
     }
     // compute the interval in scheduler in a special way
     // print out aggregate statistics since the snapshot
     __cilkrts_nondestructive_accum_stats(&total, &g->stats_snapshot, -1);
-    unsigned long long start = g->stats_snapshot.start[INTERVAL_IN_SCHEDULER];
-    unsigned long long now = __cilkrts_getticks();
-    total.accum[INTERVAL_IN_SCHEDULER] = now - start;
+    /* DEPRECATED
+      unsigned long long start = g->stats_snapshot.start[INTERVAL_IN_SCHEDULER];
+      unsigned long long now = __cilkrts_getticks();
+      total.accum[INTERVAL_IN_SCHEDULER] = now - start;
+    */
     if (show_cilk_stats) {
-      fprintf(stderr, "======Global stats since last snapshot========\n");
+      fprintf(stderr, "\n======Global stats since last snapshot========\n");
       dump_stats_to_file(stderr, &total);
-      fprintf(stderr, "======Stats for encore comparison========\n");
+      fprintf(stderr, "\n======Stats for encore comparison========\n");
     }
     // print encore specific stats
     __cilkrts_dump_encore_stats(&total); 
@@ -1879,6 +1888,7 @@ static full_frame* check_for_work(__cilkrts_worker *w)
  */ 
 static full_frame* search_until_work_found_or_done(__cilkrts_worker *w)
 {
+    START_INTERVAL(w, INTERVAL_SEARCHING); // ARTHUR
     full_frame *ff = NULL;
     // Find a full frame to execute (either through random stealing,
     // or because we pull it off w's 1-element queue).
@@ -1905,12 +1915,14 @@ static full_frame* search_until_work_found_or_done(__cilkrts_worker *w)
             break;
         case SCHEDULE_EXIT:            // exit the scheduler.
             CILK_ASSERT(WORKER_USER != w->l->type);
+            STOP_INTERVAL(w, INTERVAL_SEARCHING); // ARTHUR
             return NULL;
         default:
             CILK_ASSERT(0);
             abort();
         }
     }
+    STOP_INTERVAL(w, INTERVAL_SEARCHING); // ARTHUR
     return ff;
 }
 
