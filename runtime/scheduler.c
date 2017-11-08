@@ -234,17 +234,17 @@ void __cilkrts_dump_encore_stats_to_stderr(global_state_t *g)
       fprintf(stderr, "======Global stats since begin of program========\n");
       dump_stats_to_file(stderr, &total);
     }
+    // compute the interval in scheduler in a special way
     // print out aggregate statistics since the snapshot
     __cilkrts_nondestructive_accum_stats(&total, &g->stats_snapshot, -1);
+    unsigned long long start = g->stats_snapshot.start[INTERVAL_IN_SCHEDULER];
+    unsigned long long now = __cilkrts_getticks();
+    total.accum[INTERVAL_IN_SCHEDULER] = now - start;
     if (show_cilk_stats) {
       fprintf(stderr, "======Global stats since last snapshot========\n");
       dump_stats_to_file(stderr, &total);
       fprintf(stderr, "======Stats for encore comparison========\n");
     }
-    // compute the interval in scheduler in a special way
-    unsigned long long start = g->stats_snapshot.start[INTERVAL_IN_SCHEDULER];
-    unsigned long long now = __cilkrts_getticks();
-    total.accum[INTERVAL_IN_SCHEDULER] = now - start;
     // print encore specific stats
     __cilkrts_dump_encore_stats(&total); 
 }

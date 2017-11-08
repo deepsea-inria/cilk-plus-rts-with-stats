@@ -162,11 +162,10 @@ void __cilkrts_nondestructive_accum_stats(statistics *to, statistics *from, int 
         if (i == INTERVAL_IN_SCHEDULER && to->count[i] == 0 && from->count[i] != 0) {
           to->count[i] = 1;
         }
-        /* // If an interval is not closed, we count its duration until now
-        // We don't do this because else the range would be counted twice.
+        // If an interval is not closed, we count its duration until now
         if (from->start[i] != INVALID_START) {
            to->accum[i] += (now - from->start[i]) * multiplier;
-        } */
+        }
     }
 
     if (from->stack_hwm > to->stack_hwm)
