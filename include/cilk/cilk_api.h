@@ -55,6 +55,8 @@
 #ifndef INCLUDED_CILK_API_H
 #define INCLUDED_CILK_API_H
 
+#include <stdio.h>     // Define FILE *
+
 
 /** @defgroup api Runtime API
 * API to interact with the Intel Cilk Plus runtime.
@@ -173,7 +175,7 @@ enum __cilkrts_set_param_status {
 CILK_API(int) __cilkrts_set_param(const char *param, const char *value);
 
 CILK_API(void) __cilkg_take_snapshot_for_stats();
-CILK_API(void) __cilkg_dump_encore_stats_to_stderr();
+CILK_API(void) __cilkg_dump_json_stats_to_file(FILE* f);
 
 #ifdef _WIN32
 /**

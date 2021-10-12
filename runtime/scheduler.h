@@ -418,7 +418,7 @@ COMMON_PORTABLE
 void __cilkrts_take_snapshot_for_stats(global_state_t *g);
 // to be call at the end of the computation of interest
 COMMON_PORTABLE
-void __cilkrts_dump_encore_stats_to_stderr(global_state_t *g);
+void __cilkrts_dump_json_stats_to_file(FILE* f, global_state_t *g);
 //#endif
 
 

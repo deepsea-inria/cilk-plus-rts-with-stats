@@ -111,7 +111,7 @@ void __cilkrts_init_stats(statistics *s)
     s->stack_hwm = 0;
 }
 
-void __cilkrts_dump_encore_stats(statistics *s)
+void __cilkrts_dump_json_stats(FILE* f, statistics *s)
 {
     // DOCUMENTATION:
     // searching <= working 
@@ -120,13 +120,13 @@ void __cilkrts_dump_encore_stats(statistics *s)
     // utilization = 1 - (searching / total)
     // printf("CILK ENCORE STATISTICS FROM SNAPSHOT UNTIL NOW:\n\n");
     double utilization = 1.0 - ((double) s->accum[INTERVAL_SEARCHING]) / ((double) s->accum[INTERVAL_IN_SCHEDULER]);
-    printf("utilization %.5lf\n", utilization);
-    printf("nb_steals %lld\n", s->count[INTERVAL_STEAL_SUCCESS]);
-    printf("nb_threads_alloc %lld\n", s->count[INTERVAL_FIBER_ALLOCATE]);
-    printf("ticks_total %lld\n", s->accum[INTERVAL_IN_SCHEDULER]);
-    printf("ticks_working %lld\n", s->accum[INTERVAL_WORKING]);
-    printf("ticks_runtime %lld\n", s->accum[INTERVAL_IN_RUNTIME]);
-    printf("ticks_searching %lld\n", s->accum[INTERVAL_SEARCHING]);
+    fprintf(f, "{\"utilization\": %.5lf,\n", utilization);
+    fprintf(f, "\"nb_steals\": %lld,\n", s->count[INTERVAL_STEAL_SUCCESS]);
+    fprintf(f, "\"nb_threads_alloc\": %lld,\n", s->count[INTERVAL_FIBER_ALLOCATE]);
+    fprintf(f, "\"ticks_total\": %lld,\n", s->accum[INTERVAL_IN_SCHEDULER]);
+    fprintf(f, "\"ticks_working\": %lld,\n", s->accum[INTERVAL_WORKING]);
+    fprintf(f, "\"ticks_runtime\": %lld,\n", s->accum[INTERVAL_IN_RUNTIME]);
+    fprintf(f, "\"ticks_searching\": %lld}\n", s->accum[INTERVAL_SEARCHING]);
 }
 //#endif
 
