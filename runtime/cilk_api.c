@@ -136,13 +136,13 @@ CILK_API_VOID __cilkg_take_snapshot_for_stats() {
     global_os_mutex_unlock();
 }
 
-CILK_API_VOID __cilkg_dump_json_stats_to_file(FILE* f) {
+CILK_API_VOID __cilkg_dump_json_stats_to_file(FILE* f, unsigned long long cpu_frequency_khz) {
     // While the stats aren't protected by the global OS mutex, the table
     // of workers is, so take out the global OS mutex while we're doing this
     global_os_mutex_lock();
     if (cilkg_is_published()) {
         global_state_t *g = cilkg_get_global_state();
-        __cilkrts_dump_json_stats_to_file(f, g);
+        __cilkrts_dump_json_stats_to_file(f, cpu_frequency_khz, g);
     }
     else {
 	__cilkrts_bug("Attempting to report Cilk stats before the runtime has started\n");

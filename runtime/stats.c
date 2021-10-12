@@ -111,7 +111,19 @@ void __cilkrts_init_stats(statistics *s)
     s->stack_hwm = 0;
 }
 
-void __cilkrts_dump_json_stats(FILE* f, statistics *s)
+unsigned long long _nanoseconds_of(unsigned long long cpu_frequency_khz, unsigned long long cycles) {
+  return 1000000l * cycles / cpu_frequency_khz;
+}
+
+double _seconds_of_nanoseconds(unsigned long long ns) {
+  return (double)ns / 1.0e9;
+}
+
+double _seconds_of_cycles(unsigned long long cpu_frequency_khz, unsigned long long cycles) {
+  return _seconds_of_nanoseconds(_nanoseconds_of(cpu_frequency_khz, cycles));
+}
+
+void __cilkrts_dump_json_stats(FILE* f, unsigned long long cpu_frequency_khz, statistics *s)
 {
     // DOCUMENTATION:
     // searching <= working 
@@ -122,11 +134,15 @@ void __cilkrts_dump_json_stats(FILE* f, statistics *s)
     double utilization = 1.0 - ((double) s->accum[INTERVAL_SEARCHING]) / ((double) s->accum[INTERVAL_IN_SCHEDULER]);
     fprintf(f, "{\"utilization\": %.5lf,\n", utilization);
     fprintf(f, "\"nb_steals\": %lld,\n", s->count[INTERVAL_STEAL_SUCCESS]);
-    fprintf(f, "\"nb_threads_alloc\": %lld,\n", s->count[INTERVAL_FIBER_ALLOCATE]);
-    fprintf(f, "\"ticks_total\": %lld,\n", s->accum[INTERVAL_IN_SCHEDULER]);
-    fprintf(f, "\"ticks_working\": %lld,\n", s->accum[INTERVAL_WORKING]);
-    fprintf(f, "\"ticks_runtime\": %lld,\n", s->accum[INTERVAL_IN_RUNTIME]);
-    fprintf(f, "\"ticks_searching\": %lld}\n", s->accum[INTERVAL_SEARCHING]);
+    fprintf(f, "\"nb_fibers\": %lld,\n", s->count[INTERVAL_FIBER_ALLOCATE]);
+    fprintf(f, "\"total_time\": %.5lf,\n",
+	    _seconds_of_cycles(cpu_frequency_khz, s->accum[INTERVAL_IN_SCHEDULER]));
+    fprintf(f, "\"total_work_time\": %.5lf,\n",
+	    _seconds_of_cycles(cpu_frequency_khz, s->accum[INTERVAL_WORKING]));
+    fprintf(f, "\"total_in_runtime\": %.5lf,\n",
+	    _seconds_of_cycles(cpu_frequency_khz, s->accum[INTERVAL_IN_RUNTIME]));
+    fprintf(f, "\"total_idle_time\": %.5lf}\n",
+	    _seconds_of_cycles(cpu_frequency_khz, s->accum[INTERVAL_SEARCHING]));
 }
 //#endif
 

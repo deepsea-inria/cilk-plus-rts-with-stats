@@ -418,7 +418,7 @@ COMMON_PORTABLE
 void __cilkrts_take_snapshot_for_stats(global_state_t *g);
 // to be call at the end of the computation of interest
 COMMON_PORTABLE
-void __cilkrts_dump_json_stats_to_file(FILE* f, global_state_t *g);
+void __cilkrts_dump_json_stats_to_file(FILE* f, unsigned long long cpu_frequency_khz, global_state_t *g);
 //#endif
 
 

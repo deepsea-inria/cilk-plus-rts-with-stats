@@ -213,7 +213,7 @@ void __cilkrts_take_snapshot_for_stats(global_state_t *g) {
     */
 }
 
-void __cilkrts_dump_json_stats_to_file(FILE* f, global_state_t *g)
+void __cilkrts_dump_json_stats_to_file(FILE* f, unsigned long long cpu_frequency_khz, global_state_t *g)
 {
     int show_worker_cilk_stats = 0; // boolean flag
     int show_detailed_cilk_stats = 0; // boolean flag
@@ -255,7 +255,7 @@ void __cilkrts_dump_json_stats_to_file(FILE* f, global_state_t *g)
       fprintf(stderr, "\n======Stats for encore comparison========\n");
     }
     // print encore specific stats
-    __cilkrts_dump_json_stats(f, &total); 
+    __cilkrts_dump_json_stats(f, cpu_frequency_khz, &total); 
 }
 
 //#endif
